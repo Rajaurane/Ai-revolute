@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Revolution Quiz | Test Your Knowledge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .neon-header {
+            font-size: 3.5rem;
+            text-shadow: 0 0 10px #00f3ff,
+                         0 0 20px #00f3ff,
+                         0 0 30px #00f3ff;
+            margin-bottom: 2rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .quiz-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.2rem;
+            color: #00f3ff;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            min-height: 80px;
+            padding: 20px 0;
+        }
+
+        .options {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: rgba(0, 243, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00f3ff, #0066ff);
+            border: none;
+            padding: 1rem 2rem;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        #progress {
+            font-size: 1.1rem;
+            color: #00f3ff;
+        }
+
+        .social-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .social-btn {
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            padding: 0.8rem 1.5rem;
+            border-radius: 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #00f3ff,
+                            0 0 20px #00f3ff;
+            }
+            to {
+                text-shadow: 0 0 20px #00f3ff,
+                            0 0 30px #00f3ff,
+                            0 0 40px #00f3ff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="neon-header">🤖 AI Revolution Quiz</h1>
+        
+        <div class="quiz-box">
+            <div class="timer" id="timer">30s</div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <div class="controls">
+                <div id="progress"></div>
+                <button class="btn" id="next-btn" style="display: none;">Next Question →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="social-buttons">
+        <a href="https://ryancarterz.wordpress.com/2025/02/28/%f0%9f%8c%9f-the-generative-ai-revolution-a-symphony-of-code-consciousness-%f0%9f%8c%9f/" 
+           class="social-btn">📝 Know more</a>
+        <a href="https://youtube.com/@ryanquiz-k7n" 
+           class="social-btn">▶️ Subscribe</a>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "What does GPT stand for in AI context?",
+                options: ["General Purpose Technology", "Generative Pre-trained Transformer", "Global Processing Terminal"],
+                answer: 1
+            },
+            {
+                question: "Which year was GPT-3 released?",
+                options: ["2018", "2020", "2022"],
+                answer: 1
+            },
+            {
+                question: "What is the main ethical concern about generative AI?",
+                options: ["Energy Consumption", "Deepfakes", "Processing Speed"],
+                answer: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft;
+        let timerId;
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextBtn = document.getElementById('next-btn');
+        const progressElement = document.getElementById('progress');
+
+        function showQuestion() {
+            clearInterval(timerId);
+            timeLeft = 30;
+            updateTimerDisplay();
+            timerId = setInterval(updateTimer, 1000);
+
+            const question = questions[currentQuestion];
+            questionElement.textContent = question.question;
+            optionsElement.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('div');
+                button.className = 'option';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(index);
+                optionsElement.appendChild(button);
+            });
+
+            progressElement.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+            nextBtn.style.display = 'none';
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            updateTimerDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                handleTimeOut();
+            }
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = `${timeLeft}s`;
+        }
+
+        function handleTimeOut() {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            const correctIndex = questions[currentQuestion].answer;
+            options[correctIndex].style.background = 'linear-gradient(45deg, #00ff88, #00ccff)';
+            nextBtn.style.display = 'block';
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timerId);
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.style.background = 'rgba(255, 255, 255, 0.1)');
+            
+            if(selectedIndex === questions[currentQuestion].answer) {
+                options[selectedIndex].style.background = 'linear-gradient(45deg, #00ff88, #00ccff)';
+                score++;
+            } else {
+                options[selectedIndex].style.background = 'linear-gradient(45deg, #ff4444, #ff0000)';
+                options[questions[currentQuestion].answer].style.background = 'linear-gradient(45deg, #00ff88, #00ccff)';
+            }
+
+            options.forEach(option => option.style.pointerEvents = 'none');
+            nextBtn.style.display = 'block';
+        }
+
+        function showScore() {
+            const quizBox = document.querySelector('.quiz-box');
+            quizBox.innerHTML = `
+                <h2>Quiz Completed! 🎉</h2>
+                <div class="score">Your Score: ${score}/${questions.length}</div>
+                <button class="btn" onclick="location.reload()">Play Again</button>
+            `;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestion++;
+            if(currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showScore();
+            }
+        });
+
+        // Initialize quiz
+        showQuestion();
+    </script>
+</body>
+</html>
